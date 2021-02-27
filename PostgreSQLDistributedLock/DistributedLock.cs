@@ -18,7 +18,7 @@ namespace PostgreSQLDistributedLock
             _connection.Open();
         }
 
-        public async Task<bool> TryExecuteInDistributedLock(long lockId, Func<Task> distributedLockTask)
+        public async Task<bool> TryExecuteInDistributedLock(long lockId, Func<Task> exclusiveLockTask)
         {
             var hasLockedAcquired = await TryAcquireLockAsync(lockId);
 
@@ -29,11 +29,11 @@ namespace PostgreSQLDistributedLock
 
             try
             {
-                await distributedLockTask();
+                await exclusiveLockTask();
             }
             finally
             {
-                await UnlockAsync(lockId);
+                await ReleaseLock(lockId);
             }
 
             return true;
@@ -55,7 +55,7 @@ namespace PostgreSQLDistributedLock
             return false;
         }
 
-        private async Task UnlockAsync(long lockId)
+        private async Task ReleaseLock(long lockId)
         {
             var transactionLockCommand = $"SELECT pg_advisory_unlock({lockId})";
             _logger.LogInformation("Releasing session lock for {@LockId}", lockId);

@@ -1,9 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -17,20 +15,16 @@ namespace PostgreSQLDistributedLock.Tests
         public DistributedLockTests(ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
-            _connectionString = $"Host=localhost;Username=dbUser;Password='password';" +
-                                $"Database=distributed-lock-db;";
+            _connectionString = "Host=localhost;Username=dbUser;Password='password';Database=distributed-lock-db;";
         }
 
         [Fact]
         public void DistributedLockIsAcquiredSuccessfully()
         {
-            // Arrange
-            using var loggerFactory = LoggerFactory.Create(config => config.AddConsole());
-            var logger = _testOutputHelper.BuildLoggerFor<DistributedLockTests>();
 
-            async Task AnExclusiveLockTask(int node)
+            async Task ExclusiveLockTask(int node)
             {
-                logger.LogInformation("Executing a long running task for Node {Node}", node);
+                _testOutputHelper.WriteLine($"Executing a long running task on Node {node}");
                 // Add 5 second delay
                 await Task.Delay(5000);
             }
@@ -42,9 +36,12 @@ namespace PostgreSQLDistributedLock.Tests
             Parallel.ForEach(nodes, async node =>
             {
                 // Act and Arrange
-                logger.LogInformation("Trying to acquire and run task for Node {Node}... ", node);
-                var distributedLock = new DistributedLock(_connectionString, _testOutputHelper.BuildLoggerFor<DistributedLock>());
-                await distributedLock.TryExecuteInDistributedLock(lockId, () => AnExclusiveLockTask(node));
+                _testOutputHelper.WriteLine($"Trying to acquire session lock and run task for Node {node}");
+                var distributedLock = new DistributedLock(_connectionString, NullLogger<DistributedLock>.Instance);
+                if (!await distributedLock.TryExecuteInDistributedLock(lockId, () => ExclusiveLockTask(node)))
+                {
+                    _testOutputHelper.WriteLine($"Node {node} could not acquire lock");
+                }
             });
         }
     }
