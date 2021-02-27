@@ -42,7 +42,7 @@ namespace PostgreSQLDistributedLock
         private async Task<bool> TryAcquireLockAsync(long lockId)
         {
             var sessionLockCommand = $"SELECT pg_try_advisory_lock({lockId})";
-            _logger.LogInformation("Trying to acquire session lock for {@LockId}", lockId);
+            _logger.LogInformation("Trying to acquire session lock for Lock Id {@LockId}", lockId);
             var commandQuery = new NpgsqlCommand(sessionLockCommand, _connection);
             var result = await commandQuery.ExecuteScalarAsync();
             if (result != null && bool.TryParse(result.ToString(), out var lockAcquired) && lockAcquired)

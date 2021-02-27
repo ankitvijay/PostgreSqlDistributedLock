@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -20,19 +22,30 @@ namespace PostgreSQLDistributedLock.Tests
         }
 
         [Fact]
-        public async Task DistributedLockIsAcquiredSuccessfully()
+        public void DistributedLockIsAcquiredSuccessfully()
         {
+            // Arrange
             using var loggerFactory = LoggerFactory.Create(config => config.AddConsole());
             var logger = _testOutputHelper.BuildLoggerFor<DistributedLockTests>();
-            var distributedLock = new DistributedLock(_connectionString, _testOutputHelper.BuildLoggerFor<DistributedLock>());
-            Func<Task> anExclusiveLockTask = async () =>
+
+            async Task AnExclusiveLockTask(int node)
             {
-                logger.LogInformation("Executing a long running task... ");
-                await Task.Delay(50);
-            };
+                logger.LogInformation("Executing a long running task for Node {Node}", node);
+                // Add 5 second delay
+                await Task.Delay(5000);
+            }
+
             const long lockId = 50000;
 
-            await distributedLock.TryExecuteInDistributedLock(lockId, anExclusiveLockTask);
+            // Simulate with 5 nodes
+            var nodes = Enumerable.Range(1, 5).ToList();
+            Parallel.ForEach(nodes, async node =>
+            {
+                // Act and Arrange
+                logger.LogInformation("Executing Note {Node}", node);
+                var distributedLock = new DistributedLock(_connectionString, _testOutputHelper.BuildLoggerFor<DistributedLock>());
+                await distributedLock.TryExecuteInDistributedLock(lockId, () => AnExclusiveLockTask(node));
+            });
         }
     }
 }
