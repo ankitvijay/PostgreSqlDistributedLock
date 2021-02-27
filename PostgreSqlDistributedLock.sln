@@ -7,6 +7,8 @@ ProjectSection(SolutionItems) = preProject
 	ReadMe.md = ReadMe.md
 EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostgreSQLDistributedLock.Tests", "PostgreSQLDistributedLock.Tests\PostgreSQLDistributedLock.Tests.csproj", "{9DC2ECBF-B130-4897-BBD6-29DC8AA9E4B6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,5 +19,9 @@ Global
 		{CFB4D8AA-4918-4994-AE6A-E0CD36FDD5FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CFB4D8AA-4918-4994-AE6A-E0CD36FDD5FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CFB4D8AA-4918-4994-AE6A-E0CD36FDD5FC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DC2ECBF-B130-4897-BBD6-29DC8AA9E4B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DC2ECBF-B130-4897-BBD6-29DC8AA9E4B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DC2ECBF-B130-4897-BBD6-29DC8AA9E4B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DC2ECBF-B130-4897-BBD6-29DC8AA9E4B6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
