@@ -8,7 +8,7 @@ namespace PostgreSQLDistributedLock
     public class DistributedLock
     {
         private readonly ILogger<DistributedLock> _logger;
-        private NpgsqlConnection _connection;
+        private readonly NpgsqlConnection _connection;
 
         public DistributedLock(string connectionString, ILogger<DistributedLock> logger)
         {
@@ -18,7 +18,7 @@ namespace PostgreSQLDistributedLock
             _connection.Open();
         }
 
-        public async Task<bool> TryExecuteInDistributedLock(long lockId, Func<Task> func)
+        public async Task<bool> TryExecuteInDistributedLock(long lockId, Func<Task> distributedLockTask)
         {
             var hasLockedAcquired = await TryAcquireLockAsync(lockId);
 
@@ -29,7 +29,7 @@ namespace PostgreSQLDistributedLock
 
             try
             {
-                await func();
+                await distributedLockTask();
             }
             finally
             {

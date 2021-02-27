@@ -42,7 +42,7 @@ namespace PostgreSQLDistributedLock.Tests
             Parallel.ForEach(nodes, async node =>
             {
                 // Act and Arrange
-                logger.LogInformation("Executing Note {Node}", node);
+                logger.LogInformation("Trying to acquire and run task for Node {Node}... ", node);
                 var distributedLock = new DistributedLock(_connectionString, _testOutputHelper.BuildLoggerFor<DistributedLock>());
                 await distributedLock.TryExecuteInDistributedLock(lockId, () => AnExclusiveLockTask(node));
             });
