@@ -37,7 +37,7 @@ namespace PostgreSQLDistributedLock.Tests
             {
                 // Act and Arrange
                 _testOutputHelper.WriteLine($"Trying to acquire session lock and run task for Node {node}");
-                var distributedLock = new DistributedLock(_connectionString, NullLogger<DistributedLock>.Instance);
+                using var distributedLock = new DistributedLock(_connectionString, NullLogger<DistributedLock>.Instance);
                 if (!await distributedLock.TryExecuteInDistributedLock(lockId, () => ExclusiveLockTask(node)))
                 {
                     _testOutputHelper.WriteLine($"Node {node} could not acquire lock");

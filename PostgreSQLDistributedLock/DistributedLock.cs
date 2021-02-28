@@ -5,10 +5,11 @@ using Npgsql;
 
 namespace PostgreSQLDistributedLock
 {
-    public class DistributedLock
+    public sealed class DistributedLock : IDisposable
     {
         private readonly ILogger<DistributedLock> _logger;
-        private readonly NpgsqlConnection _connection;
+        private bool _disposed;
+        private NpgsqlConnection _connection;
 
         public DistributedLock(string connectionString, ILogger<DistributedLock> logger)
         {
@@ -61,6 +62,29 @@ namespace PostgreSQLDistributedLock
             _logger.LogInformation("Releasing session lock for {@LockId}", lockId);
             var commandQuery = new NpgsqlCommand(transactionLockCommand, _connection);
             await commandQuery.ExecuteScalarAsync();
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+        }
+
+        private void Dispose(bool disposing)
+        {
+            if (_disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                _logger.LogInformation("Closing database connection");
+                _connection?.Close();
+                _connection?.Dispose();
+                _connection = null;
+            }
+
+            _disposed = true;
         }
     }
 }
